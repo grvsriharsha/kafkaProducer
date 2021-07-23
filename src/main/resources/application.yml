@@ -2,13 +2,25 @@ spring:
   profiles:
     active: local
 ---
+
 spring:
   config:
     activate:
       on-profile: local
+
+#  configure default topic that kafka template uses.KafkaProducer can be interchangeably used for kafka producer
   kafka:
     template:
       default-topic: library-events
+
+#   PRODUCER CONFIGURATION
+#   configure the
+#   1.server,
+#   2.key-value serializers
+#   3.properties
+#    it should connect to publish a mssg.We already configured default topic in teamplate section
+#  We can configure the properties like  ack,number of retries,backof time here.But for consumer,i guess we can configure in java code also.
+
     producer:
       bootstrap-servers: localhost:9092,localhost:9093,localhost:9094
       key-serializer: org.apache.kafka.common.serialization.IntegerSerializer
@@ -17,10 +29,17 @@ spring:
         acks: all
         retries: 10
         retry.backoff.ms: 1000
+
+#    ADMIN CONFIGURATION
+#   configure the admin,so that we can produce default topic.We just configure the servers to connect.
     admin:
       properties:
         bootstrap.servers: localhost:9092,localhost:9093,localhost:9094
 ---
+
+#   SSL CONFIGURATION
+#   This explains how to use ssl configured configuration.Refer to the udemy tutorial.I didnt pay much attention to this.
+
 spring:
   config:
     activate:

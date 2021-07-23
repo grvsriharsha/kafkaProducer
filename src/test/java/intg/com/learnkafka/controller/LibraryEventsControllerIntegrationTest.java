@@ -25,10 +25,19 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@EmbeddedKafka(topics = {"library-events"}, partitions = 3)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT) // So that test runs at every random part
+
+//Basically,for integration tests ,the configuration of app.yml is taken by default..but often we want to over ride the properties for testing.
+//So what ever we configure,will override the existing yaml file using the TestPropertySource.
+
+@EmbeddedKafka(topics = {"library-events"}, partitions = 3) // Single topic ,3 partitions overriding app.yaml files configuration.This EmbeddedKafka
+// is from test packages.So For test cases by default this topic,partition is used for tests,eventhough we exclusively
+// don't override in TestPropertySource
+
 @TestPropertySource(properties = {"spring.kafka.producer.bootstrap-servers=${spring.embedded.kafka.brokers}",
-        "spring.kafka.admin.properties.bootstrap.servers=${spring.embedded.kafka.brokers}"})
+        "spring.kafka.admin.properties.bootstrap.servers=${spring.embedded.kafka.brokers}"}) // Using test cases are
+// over riding the SERVER property that PRODUCER & ADMIN should connect to.These properties are defined in ProducerConfig.class and
+//we are overriding them
 public class LibraryEventsControllerIntegrationTest {
 
     @Autowired
@@ -39,6 +48,8 @@ public class LibraryEventsControllerIntegrationTest {
 
     private Consumer<Integer, String> consumer;
 
+    //If you see app.yaml,we haven't configured the KafkaConsumer.But we need it to complete this test case. So in this example,we used java class
+    //to configure the consumer and tie it to already configured EmbeddedKafkaBroker,which consists of zoopkeeper+all servers.
     @BeforeEach
     void setUp() {
         Map<String, Object> configs = new HashMap<>(KafkaTestUtils.consumerProps("group1", "true", embeddedKafkaBroker));
@@ -75,6 +86,7 @@ public class LibraryEventsControllerIntegrationTest {
         //then
         assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
 
+        //This is a handy method given  y spring-kafka for testing.
         ConsumerRecord<Integer, String> consumerRecord = KafkaTestUtils.getSingleRecord(consumer, "library-events");
         //Thread.sleep(3000);
         String expectedRecord = "{\"libraryEventId\":null,\"libraryEventType\":\"NEW\",\"book\":{\"bookId\":123,\"bookName\":\"Kafka using Spring Boot\",\"bookAuthor\":\"Dilip\"}}";

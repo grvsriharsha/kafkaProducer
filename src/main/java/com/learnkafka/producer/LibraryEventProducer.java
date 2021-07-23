@@ -23,6 +23,7 @@ import java.util.concurrent.TimeoutException;
 @Slf4j
 public class LibraryEventProducer {
 
+    //Please refer the app.yml file to see how configuration takes place
     @Autowired
     KafkaTemplate<Integer,String> kafkaTemplate;
 

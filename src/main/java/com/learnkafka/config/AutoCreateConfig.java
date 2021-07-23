@@ -13,6 +13,7 @@ import java.util.Map;
 
 @Configuration
 @Profile("local")
+// This AutoCreate config is used ,so that as an administrator,i can create a topic at the start of the server.
 public class AutoCreateConfig {
 
     @Bean
